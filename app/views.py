@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import login_user, logout_user, current_user, login_required
 from werkzeug.security import check_password_hash
 import datetime
-from app.models import Users
+from app.models import Users, Reservations
 from app.forms import LoginForm, UserRegistration, ReservationForm
 import stripe
 import time
@@ -104,7 +104,6 @@ def register():
         return redirect(url_for("login"))
     return render_template("register.html", form=form)
 
-
 @app.route('/reserve', methods=['GET','POST'])
 def reserve():
     """accepts user information and save it to the database"""  
@@ -112,30 +111,68 @@ def reserve():
     # now = datetime.datetime.now()
     if request.method == 'POST':
         if form.validate_on_submit():
-            starttime = form.starttime.data
             startdate = form.startdate.data
-            endtime = form.endtime.data 
-            enddate = form.enddate.data
-            parkinglots = form.parkinglots.data
-            typeofparking = form.typeofparking.data
-            licenseplateno = form.licenseplateno.data
+            starttime = form.startdate.data
+            enddate = form.startdate.data
+            endtime = form.startdate.data
+            licenseplateno = form.startdate.data
+            typeofparking= form.typeofparking.data
+            parkinglots= forms.parkinglots.data
 
-            reservation = Reservations(starttime,startdate,endtime,enddate,parkinglots,typeofparking, licenseplateno)
+            reservation = Reservations(start_date=startdate,start_time=starttime,end_date=enddate,end_time=endtime,licenseplateno=licenseplateno, typeofparking=typeofparking, parkinglots=parkinglots )
 
             db.session.add(reservation)
             db.session.commit()
 
-            flash ('Congrats! You have successfully made your reservation.', 'success')
+            flash('Reservation information submitted successfully.', 'success')
         else:
-            flash('Oh no! Looks like this parking lot is full. Please try another.', 'danger')
+            flash('Reservation information not submitted', 'danger')
         
-        return redirect(url_for("account"))
+        return render_template("purchase.html")
     return render_template("reserve.html", form=form)
 
-'''def checkspaces():
-    parking = ParkingLots.query.all()
+'''@app.route('/reserve', methods=['GET','POST'])
+def reserve():
+    
+    form=ReservationForm()
+    
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            starttime = form.starttime.data
+            startdate = form.startdate.data
+            endtime = form.endtime.data 
+            enddate = form.enddate.data
+            typeofparking = form.typeofparking.data
+            licenseplateno = form.licenseplateno.data
+            parkinglots = form.parkinglots.data
 
-    if '''
+            if parkinglots:
+                reservationCount = len(Reservations.query.filter_by(id= Reservations.id).all())
+                if reservationCount == 0:
+                    return None
+                elif reservationCount > 0:
+                    spaces = ParkingLots.query.filter_by(numberfspaces=ParkingLots.numberofspaces).all()
+                    for space in spaces:
+                        if spaces == 0: 
+                            return None
+                            flash('Oh no! Looks like this parking lot is full. Please try another.', 'danger')                
+                else:
+                    spaces -= 1
+                    return spaces
+            flash ('Congrats! You have successfully made your reservation. Please continue to payment.')
+
+
+            reservation = Reservations(starttime,startdate,endtime,enddate, licenseplateno)
+
+            db.session.add(reservation)
+            db.session.commit()  
+            flash('Reservation information submitted successfully. Please continue to the payment page.', 'success')
+        else:
+            flash('Reservation information not submitted', 'danger')
+        
+        return render_template("purchase.html")
+    return render_template("reserve.html", form=form)'''
+
 
 
 @login_manager.user_loader

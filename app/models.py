@@ -48,7 +48,6 @@ class Users(db.Model):
 class Reservations(db.Model):
     __tablename__ = 'Reservations'
     id = db.Column(db.Integer,primary_key = True)
-    user_id = db.Column(db.Integer)
     start_date = db.Column(db.String(255))
     start_time = db.Column(db.String(255))
     end_date = db.Column(db.String(255))
@@ -56,8 +55,7 @@ class Reservations(db.Model):
     licenseplateno = db.Column(db.String(255))
     typeofparking = db.Column(db.String(255))
 
-    def __init__(self,userID,start_date, start_time, end_date, end_time, licenseplateno, typeofparking):
-        self.user_id = userID
+    def __init__(self,start_date, start_time, end_date, end_time, licenseplateno, typeofparking):
         self.start_date = start_date
         self.start_time = start_time
         self.end_date = end_date
@@ -71,35 +69,22 @@ class Reservations(db.Model):
         except NameError:
             return str(self.id)
         
-    def get_userId(self):
-        try:
-            return unicode(self.user_id)
-        except NameError:
-            return str(self.user_id)
+    
 
 class ParkingLots(db.Model):
     __tablename__ = 'Parking Lots'
     id = db.Column(db.Integer,primary_key = True)
-    reservations_id = db.Column(db.Integer)
     parkinglots = db.Column(db.String(255))
     numberofspaces = db.Column(db.Integer,)
 
-    status = db.Column(db.String(255))
 
-    def __init__(self,reservationsID,parkinglots, numberofspaces, status):
-        self.reservations_id = reservationsID
+    def __init__(self,parkinglots, numberofspaces):
         self.parkinglots = parkinglots
         self.numberofspaces = numberofspaces
-        self.status = status
 
     def get_id(self):
         try:
             return unicode(self.id)
         except NameError:
             return str(self.id)
-        
-    def get_userId(self):
-        try:
-            return unicode(self.reservations_id)
-        except NameError:
-            return str(self.reservations_id)
+    
